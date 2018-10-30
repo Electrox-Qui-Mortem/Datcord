@@ -1,0 +1,19 @@
+
+    <div class ="modal" id="login">
+			<form class="modal-content" id="signUpForm">
+				<h1 class="title">Sign Up</h1>
+				<h3 class="enter">Sign up for the GC</h3>
+				<label class="enter-label" for="nameyourself">
+					<input class="input" placeholder="Input Username" required/>
+				</label>
+			</form>
+		</div>
+    <div class ="modal" id="signup">
+			<form class="modal-content" id="loginForm">
+				<h1 class="title">Login</h1>
+				<h3 class="enter">Login to the GC</h3>
+				<label class="enter-label" for="nameyourself">
+					<input class="input" placeholder="Input Username" required/>
+				</label>
+			</form>
+		</div>

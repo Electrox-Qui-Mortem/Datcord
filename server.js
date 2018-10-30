@@ -27,18 +27,28 @@ fs.readdir( './', function( err, files ) {
     })
 })
 var mLab = require('mongolab-data-api')('Dj_EgiY8b-yLObrNAeln-AsCghwhVl_y');
-// we've started you off with Express, 
-// but feel free to use whatever libs or frameworks you'd like through `package.json`.
-
-// http://expressjs.com/en/starter/static-files.html
 app.use(express.static('public'));
-
-// http://expressjs.com/en/starter/basic-routing.html
 app.get('/', function(request, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
-var recentlySent = new Map()
-var timers = new Map()
+var getBlacklist = () => {
+    var bl = []
+    var opt = {
+        database:'lexybase',
+        collectionName:'blacklist'
+    }
+    var ready = false
+    mLab.listDocuments(opt, (err, msgs) => {
+        msgs.forEach((item) => {
+            bl.push(item.id)
+        })
+        ready = true
+    })
+    while(!ready){
+        
+    }
+    return bl
+}
 io.on('connection', function(socket) {
     var opt = {
         database:'lexybase',
@@ -61,13 +71,14 @@ io.on('connection', function(socket) {
         msg.id = Math.round(Math.random() * 1000000000)
         msg._date = new Date()
         msg.date = msg._date.getTime()
+        var bl = getBlacklist()
+        if(bl.find(element => element == msg.usrid)) return socket.emit('chat message', {usr:'SERVER', msg:'You\'re blacklisted.', date: new Date(), usrid:'000', id:3003030});
         io.emit('chat message', msg)
         var options = {
             database:'lexybase',
             collectionName:'evy-history',
             documents:msg
         }
-        var usr =  recentlySent.get(msg.usr)
         mLab.insertDocuments(options, () => {})
     })
     socket.on('delete', function(id){

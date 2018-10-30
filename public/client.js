@@ -64,7 +64,7 @@ class Message {
             if(this.date.getHours() > 12) getMsg.innerHTML += ` - At ${this.date.getHours() - 12}:${this.date.getMinutes()} PM`
             else getMsg.innerHTML += ` - At ${this.date.getHours()}:${this.date.getMinutes()}`
         }else {
-            getMsg.innerHTML += `- On ${Week[this.date.getDay()]}`
+            getMsg.innerHTML += ` - On ${Week[this.date.getDay()]}`
         }
         getMsg.id = this.id
         window.scrollTo(0, document.body.scrollHeight);

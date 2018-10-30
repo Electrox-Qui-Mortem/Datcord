@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Group Chat</title>
+    <link id="favicon" rel="icon" href="https://cdn.glitch.com/ad2a2be0-9feb-4eb9-8151-2f9d1202b0b7%2Ffavicon.ico?1540848159347" type="image/x-icon">
+    <script src="/socket.io/socket.io.js"></script>
+    <link rel="stylesheet" href="/style.css">
+    <script src="/client.js" defer></script>
+  </head>
+  <body>
+    <div class ="modal" id="start">
+			<form class="modal-content" id="enterForm">
+				<h1 class="title">Group Chat</h1>
+				<h3 class="enter">Enter the group chat</h3>
+				<label class="enter-label">
+					<input class="input" id="nameyourself" placeholder="Input Username" required/>
+				</label>
+			</form>
+		</div>
+    <div id="chat">
+        <div id="msgs">
+            <ul id="messages"></ul>
+        </div>
+        <form id="chatForm">
+            <input id="messagebox" required/>
+            <button class="submitButton">
+              Send
+          </button>
+        </form>
+    </div>
+  </body>
+</html>

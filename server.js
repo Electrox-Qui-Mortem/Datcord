@@ -60,7 +60,7 @@ io.on('connection', function(socket) {
     socket.on('chat message', (msg) => {
         msg.id = Math.round(Math.random() * 1000000000)
         msg._date = new Date()
-        msg.date = msg._date.getTime() -604800000
+        msg.date = msg._date.getTime()
         io.emit('chat message', msg)
         var options = {
             database:'lexybase',

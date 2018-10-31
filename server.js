@@ -10,7 +10,6 @@ var port = process.env.PORT || 5000;
 var socketIO = require('socket.io');
 var io = socketIO(server);
 var fs = require('fs')
-
 fs.readdir( './', function( err, files ) {
     if( err ) {
         console.error( "Could not list the directory.", err );

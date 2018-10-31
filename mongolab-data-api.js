@@ -1,29 +1,21 @@
 'use strict';
-var rp = require('request-promise')
-var BASE_URL = 'https://api.mongolab.com/api/1/';
-var MongoLab = function (apiKey) {
-  if (!(this instanceof MongoLab)) {
-    return new MongoLab(apiKey);
-  }
-
-  this.APIKEY = apiKey;
-
-  var KEY_CHECK_URL = http.get(BASE_URL + 'databases?apiKey=' + this.APIKEY);
-  if (KEY_CHECK_URL.message === 'Please provide a valid API key.') {
-    throw new Error('Invalid API key');
-  }
-};
-class mLab {
+var rp = require('request-promise');
+module.exports = class mLabInteractor {
     constructor(apiKey){
-        this.apiKey = apiKey
-        rp(BASE_URL + 'databases?apiKey=' + this.apiKey)
+        this.apiKey = apiKey;
+        rp({
+            uri:`https://api.mongolab.com/api/1/databases?`,
+            qs:{
+                apiKey:this.apiKey
+            }
+        })
             .then(res => {
                 if(res.message == 'Please provide a valid API key.')
                 throw new Error('Invalid API key')
-            })
+            });
     }
     listDatabases(){
-        var options = {
+        var opt = {
             uri: 'https://api.mongolab.com/api/1/databases',
             qs: {
                 apiKey:this.apiKey // -> uri + '?access_token=xxxxx%20xxxxx'
@@ -33,16 +25,11 @@ class mLab {
             },
             json: true // Automatically parses the JSON string in the response
         };
-        return new Promise(resolve => {
-            rp(options)
-                .then(res => {
-                    resolve(res)
-                })
-        })
+        return rp(opt)
     }
     listCollections(db){
         if(!db || typeof db != 'string') throw new Error('Invalid Database name')
-        var options = {
+        var opt = {
             uri: `https://api.mongolab.com/api/1/databases/${db}/collections`,
             qs: {
                 apiKey:this.apiKey // -> uri + '?access_token=xxxxx%20xxxxx'
@@ -52,7 +39,7 @@ class mLab {
             },
             json: true // Automatically parses the JSON string in the response
         };
-        return rp(options)
+        return rp(opt)
     }
     listDocuments(options){
         if(!options.database || !options.collectionName) throw new Error('Database Name and Collection Name are required')
@@ -85,7 +72,7 @@ class mLab {
         return rp(opt)
     }   
     insertDocuments(options){
-        if(!options.database || !options.collectionName || ! options.documents) throw new Error('Database name, Collection Name, and Document(s) are required')
+        if(!options.database || !options.collectionName || ! options.documents) throw new Error('Invalid options')
         var opt = {
             uri: `https://api.mongolab.com/api/1/databases/${options.database}/collections/${options.collectionName}`,
             qs: {
@@ -102,7 +89,7 @@ class mLab {
         return rp(opt)
     }
     updateDocuments(options){
-        if(!options.database || !options.collectionName || !options.data) throw new Error('Invalid options')
+        if(!options.database || !options.collectionName || !options.data) throw new Error('Invalid Options')
         var op = {
             q: options.query,
             m: options.allDocuments,
@@ -128,7 +115,7 @@ class mLab {
         return rp(opt)
     }
     deleteDocuments(options){
-        if(!options.database || !options.collectionName) throw new Error('Invalid options')
+        if(!options.database || !options.collectionName) throw new Error('Invalid Options')
         if(!options.documents) options.documents = []
         var op = {
             q:options.query
@@ -149,67 +136,67 @@ class mLab {
         };
         return rp(opt)
     }
-    
+    viewDocument(options){
+        if(!options.database || !options.collectionName || !options.id) throw new Error('Invalid Options')
+        var opt = {
+            uri: `https://api.mongolab.com/api/1/databases/${options.database}/collections/${options.collectionName}/${options.id}`,
+            qs: {
+                apiKey:this.apiKey // -> uri + '?access_token=xxxxx%20xxxxx'
+            },
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+        return rp(opt)
+    }
+    updateDocument(options){
+        if(!options.database || !options.collectionName || !options.id || !options.updateObject) throw new Error('Invalid Options')
+        var opt = {
+            uri: `https://api.mongolab.com/api/1/databases/${options.database}/collections/${options.collectionName}/${options.id}`,
+            method:'PUT',
+            body:options.updateObject,
+            qs: {
+                apiKey:this.apiKey // -> uri + '?access_token=xxxxx%20xxxxx'
+            },
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+        return rp(opt)
+    }
+    deleteDocument(options){
+        if(!options.database || !options.collectionName || !options.id) throw new Error('Invalid Options')
+        var opt = {
+            uri: `https://api.mongolab.com/api/1/databases/${options.database}/collections/${options.collectionName}/${options.id}`,
+            method:'DELETE',
+            qs: {
+                apiKey:this.apiKey // -> uri + '?access_token=xxxxx%20xxxxx'
+            },
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+        return rp(opt)
+    }
+    runCommand(options){
+        if(!options.database || !options.commands) throw new Error('Invalid Options')
+        var opt = {
+            uri: `https://api.mongolab.com/api/1/databases/${options.database}/runCommand`,
+            method:'POST',
+            body:options.commands,
+            qs: {
+                apiKey:this.apiKey // -> uri + '?access_token=xxxxx%20xxxxx'
+            },
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json: true // Automatically parses the JSON string in the response
+        };
+        return mLabInteractor
+    }
 }
-(function () {
-  this.viewDocument = function (options, cb) {
-    var database = options.database || null;
-    var collectionName = options.collectionName || null;
-    var id = options.id || null;
 
-    if (typeof id !== 'string' || id === null) {
-      cb(new Error('document id is required'), null);
-    } else {
-
-      var res = http.get(BASE_URL + 'databases/' + database + '/collections/' + collectionName + '/' + id + '?apiKey=' + this.APIKEY);
-
-      cb(null, res);
-    }
-  };
-
-  this.updateDocument = function (options, cb) {
-    var database = options.database || null;
-    var collectionName = options.collectionName || null;
-    var id = options.id || null;
-    var updateObject = options.updateObject || null;
-
-    if (typeof id !== 'string' || id === null || updateObject === null) {
-      cb(new Error('document id is required'), null);
-    } else {
-      var res = http.put(BASE_URL + 'databases/' + database + '/collections/' + collectionName + '/' + id + '?apiKey=' +
-                                this.APIKEY, updateObject);
-
-      cb(null, res);
-    }
-  };
-
-  this.deleteDocument = function (options, cb) {
-    var database = options.database || null;
-    var collectionName = options.collectionName || null;
-    var id = options.id || null;
-
-    if (typeof id !== 'string' || id === null) {
-      cb(new Error('document id is required'), null);
-    } else {
-      var res = http.del(BASE_URL + 'databases/' + database + '/collections/' + collectionName + '/' + id + '?apiKey=' + this.APIKEY);
-
-      cb(null, res);
-    }
-  };
-
-  this.runCommand = function (options, cb) {
-    var database = options.database || null;
-    var commands = options.commands || null;
-
-    if (database === null || commands === null) {
-      cb(new Error('invalid options'), null);
-    } else {
-      var res = http.post(BASE_URL + 'databases/' + database + '/runCommand?apiKey=' + this.APIKEY, commands);
-
-      cb(null, res);
-    }
-  };
-}).call(MongoLab.prototype);
-
-module.exports = mLab;
 

@@ -16,8 +16,9 @@
   width: 50%; /* Could be more or less, depending on screen size */
 }
 #onlinePlayers {
+    text-align:center;
     padding: 20px;
-    position:absolute;
+    position:fixed;
     left:76%;
     top:10%;
     border-radius: 25px;

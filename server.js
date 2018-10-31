@@ -10,6 +10,7 @@ var port = process.env.PORT || 5000;
 var socketIO = require('socket.io');
 var io = socketIO(server);
 var fs = require('fs')
+
 fs.readdir( './', function( err, files ) {
     if( err ) {
         console.error( "Could not list the directory.", err );
@@ -41,6 +42,21 @@ var getBlacklist = () => {
     }
     return MLab.listDocuments(opt)
 }
+var pl = new Map()
+var getPlayers = async () => {
+    var opt = {
+        database:'lexybase',
+        collectionName:'user-list'
+    }
+    var players = await MLab.listDocuments(opt)
+    players.forEach(player => {
+        player.connected = false
+        player.socketid = null
+        pl.set(player.id, player)
+    })
+    return 
+}
+getPlayers()
 io.on('connection', function(socket) {
     var opt = {
         database:'lexybase',
@@ -61,7 +77,27 @@ io.on('connection', function(socket) {
             socket.emit('chat messages', list)
       
         })
-
+    socket.on('disconnect', () => {
+        pl.forEach(player => {
+            if(player.socketid == socket.id){
+                player.connected = false
+                player.socketid = null
+                io.emit('discon', player.id)
+            }
+        })
+    })
+    socket.on('con', id => {
+        pl.forEach(player => {
+            if(player.connected){
+                socket.emit('con', {id:player.id, name:player.nm})
+            }
+        })
+        if(pl.get(id)){ 
+            pl.get(id).connected = true
+            pl.get(id).socketid = socket.id
+            io.emit('con', {id:id, name:pl.get(id).nm})
+        }
+    })
     socket.on('chat message', async (msg) => {
         msg.id = Math.round(Math.random() * 1000000000)
         msg._date = new Date()
@@ -96,6 +132,6 @@ io.on('connection', function(socket) {
 server.listen(
     process.env.PORT,
     function() {
-        console.log('Ayy, creator, I\'m listening at port ' + server.address().port);
+        console.log('Ayy, creator, your app is listening at port ' + server.address().port);
     }
 )

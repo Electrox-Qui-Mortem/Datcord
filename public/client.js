@@ -61,13 +61,15 @@ class Message {
         var getMsg = document.createElement('li')
         getMsg.innerHTML = `${this.usr}: ${this.message}`
         if(new Date().getTime() - this.date.getTime() < 604800000){
-            if(this.date.getHours() > 12) getMsg.innerHTML += ` - At ${this.date.getHours() - 12}:${this.date.getMinutes()} PM`
-            else getMsg.innerHTML += ` - At ${this.date.getHours()}:${this.date.getMinutes()}`
+            if(this.date.getMinutes() < 10) var min =  '0' + this.date.getMinutes()
+            else var min = this.date.getMinutes()
+            if(this.date.getHours() > 12) getMsg.innerHTML += ` - At ${this.date.getHours() - 12}:${min} PM`
+            else getMsg.innerHTML += ` - At ${this.date.getHours()}:${min}`
         }else {
             getMsg.innerHTML += ` - On ${Week[this.date.getDay()]}`
         }
         getMsg.id = this.id
-        window.scrollTo(0, document.body.scrollHeight);
+
         var deleteButton = document.createElement('button')
         deleteButton.textContent = 'Delete'
         deleteButton.classList.add('deleteButton')
@@ -84,11 +86,13 @@ class Message {
 socket.on('chat message', function(msg){
     var msg = new Message(msg)
     messages.appendChild(msg.getMessageElement())
+    window.scrollTo(0, document.body.scrollHeight);
 });
 socket.on('chat messages', function(msgs){
     msgs.forEach((msg)=>{
         var msg = new Message(msg)
         messages.appendChild(msg.getMessageElement())
+        window.scrollTo(0, document.body.scrollHeight);
     })
 });
 socket.on('spam', () => {

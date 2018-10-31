@@ -26,6 +26,8 @@ fs.readdir( './', function( err, files ) {
         }
     })
 })
+var mlabInteractor = require('./mongolab-data-api.js')
+var MLab = new mlabInteractor('Dj_EgiY8b-yLObrNAeln-AsCghwhVl_y')
 var mLab = require('mongolab-data-api')('Dj_EgiY8b-yLObrNAeln-AsCghwhVl_y');
 app.use(express.static('public'));
 app.get('/', function(request, response) {
@@ -37,17 +39,7 @@ var getBlacklist = () => {
         database:'lexybase',
         collectionName:'blacklist'
     }
-    var ready = false
-    mLab.listDocuments(opt, (err, msgs) => {
-        msgs.forEach((item) => {
-            bl.push(item.id)
-        })
-        ready = true
-    })
-    while(!ready){
-        
-    }
-    return bl
+    return MLab.listDocuments(opt)
 }
 io.on('connection', function(socket) {
     var opt = {
@@ -55,23 +47,26 @@ io.on('connection', function(socket) {
         collectionName:'evy-history'
     }
     var list = []
-    mLab.listDocuments(opt, (err, msgs) => {
-        msgs.forEach((msg) => {
-            list.push({
-                usr:msg.usr,
-                msg:msg.msg,
-                id:msg.id,
-                usrid:msg.usrid,
-                date:msg.date
+    MLab.listDocuments(opt)
+        .then(res => {
+            res.forEach((msg) => {
+                list.push({
+                    usr:msg.usr,
+                    msg:msg.msg,
+                    id:msg.id,
+                    usrid:msg.usrid,
+                    date:msg.date
+                })
             })
+            socket.emit('chat messages', list)
+      
         })
-    })
-    socket.emit('chat messages', list)
-    socket.on('chat message', (msg) => {
+
+    socket.on('chat message', async (msg) => {
         msg.id = Math.round(Math.random() * 1000000000)
         msg._date = new Date()
         msg.date = msg._date.getTime()
-        var bl = getBlacklist()
+        var bl = await getBlacklist()
         if(bl.find(element => element == msg.usrid)) return socket.emit('chat message', {usr:'SERVER', msg:'You\'re blacklisted.', date: new Date(), usrid:'000', id:3003030});
         io.emit('chat message', msg)
         var options = {
@@ -79,16 +74,21 @@ io.on('connection', function(socket) {
             collectionName:'evy-history',
             documents:msg
         }
-        mLab.insertDocuments(options, () => {})
+        MLab.insertDocuments(options)
     })
     socket.on('delete', function(id){
-        io.emit('delete', id)
         var options = {
             database:'lexybase',
             collectionName:'evy-history',
             query:`{id: ${id}}`
         }
-        mLab.deleteDocuments(options, () => {})
+        MLab.deleteDocuments(options)
+            .then(res => {
+                io.emit('delete', id)
+            }, err => {
+                console.log(err)
+            })
+        
     })
     socket.on('log', console.log)
 })
@@ -96,6 +96,6 @@ io.on('connection', function(socket) {
 server.listen(
     process.env.PORT,
     function() {
-        console.error('Ayy, creator, I\'m listening at port ' + server.address().port);
+        console.log('Ayy, creator, I\'m listening at port ' + server.address().port);
     }
 )

@@ -96,10 +96,18 @@ body { font: 13px Helvetica, Arial; }
 
 #messages li { 
     padding: 5px 10px; 
-    background: black; 
-    color:#eee;
+    background: #00D01A; 
+    color:#4C0400;
 }
 #messages li:nth-child(odd) {
-    background: #eee; 
-    color:black;
+    background: #4C0400; 
+    color:#00D01A;
+}
+#messages li .deleteButton { 
+    background: #4C0400; 
+    color:#00D01A;
+}
+#messages li:nth-child(odd) .deleteButton{
+    background: #00D01A; 
+    color:#4C0400;
 }

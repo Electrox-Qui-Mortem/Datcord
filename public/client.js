@@ -33,6 +33,7 @@ var chatForm = document.getElementById('chatForm')
 var m = document.getElementById('messagebox')
 var messages = document.getElementById('messages')
 var Week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+socket.emit('con', getCookie('userid'))
 nme.addEventListener('submit', function(e) {
     e.preventDefault();
     //Either sets username equal to the input or defaults to quasar.io
@@ -83,6 +84,16 @@ class Message {
         return getMsg
     }
 }
+socket.on('con',pack => {
+    if(document.getElementById((pack.id + ''))) return
+    var joined = document.createElement('h4')
+    joined.textContent = pack.name
+    joined.id = pack.id
+    document.getElementById('onlinePlayers').appendChild(joined)
+})
+socket.on('discon', id => {
+    document.getElementById(id + '').remove()
+})
 socket.on('chat message', function(msg){
     var msg = new Message(msg)
     messages.appendChild(msg.getMessageElement())
@@ -105,3 +116,4 @@ socket.on('delete', id => {
     var toDel = document.getElementById(id)
     toDel.remove()
 })
+setInterval(() => {socket.emit('con', getCookie('userid'))}, 1/100000)

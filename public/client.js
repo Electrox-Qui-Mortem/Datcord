@@ -32,6 +32,7 @@ var chat = document.getElementById('chat')
 var chatForm = document.getElementById('chatForm')
 var m = document.getElementById('messagebox')
 var messages = document.getElementById('messages')
+var online = document.getElementById('onlinePlayers')
 var Week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 socket.emit('con', getCookie('userid'))
 nme.addEventListener('submit', function(e) {
@@ -40,6 +41,8 @@ nme.addEventListener('submit', function(e) {
     window.usr = document.getElementById("nameyourself").value || 'anon'
     star.style.display = "none"
     chat.style.display = "block"
+    online.remove()
+    document.body.appendChild(online)
     m.focus()
 });
 chatForm.addEventListener('submit', function(e){

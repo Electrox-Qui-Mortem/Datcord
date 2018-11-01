@@ -16,8 +16,9 @@
   width: 50%; /* Could be more or less, depending on screen size */
 }
 #onlinePlayers {
+    text-align:center;
     padding: 20px;
-    position:absolute;
+    position:fixed;
     left:76%;
     top:10%;
     border-radius: 25px;
@@ -108,18 +109,18 @@ body { font: 13px Helvetica, Arial; }
 
 #messages li { 
     padding: 5px 10px; 
-    background: #00D01A; 
-    color:#4C0400;
+    background: lightblue; 
+    color:white;
 }
 #messages li:nth-child(odd) {
-    background: #4C0400; 
-    color:#00D01A;
+    background: white; 
+    color:lightblue;
 }
 #messages li .deleteButton { 
-    background: #4C0400; 
-    color:#00D01A;
+    background: white; 
+    color:lightblue;
 }
 #messages li:nth-child(odd) .deleteButton{
-    background: #00D01A; 
-    color:#4C0400;
+    background: lightblue; 
+    color:white;
 }

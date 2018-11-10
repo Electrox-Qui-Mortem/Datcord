@@ -1,4 +1,5 @@
 var socket = io();
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -31,8 +32,8 @@ var ut = document.createElement('h3')
 var chat = document.getElementById('chat')
 var chatForm = document.getElementById('chatForm')
 var m = document.getElementById('messagebox')
+var servs = document.getElementById('servers')
 var messages = document.getElementById('messages')
-var online = document.getElementById('onlinePlayers')
 var Week = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 socket.emit('con', getCookie('userid'))
 nme.addEventListener('submit', function(e) {
@@ -41,13 +42,11 @@ nme.addEventListener('submit', function(e) {
     window.usr = document.getElementById("nameyourself").value || 'anon'
     star.style.display = "none"
     chat.style.display = "block"
-    online.remove()
-    document.body.appendChild(online)
     m.focus()
 });
 chatForm.addEventListener('submit', function(e){
     e.preventDefault()
-    socket.emit('chat message', {usr:window.usr, msg: m.value, usrid:getCookie('userid')});
+    socket.emit('chatMessage', {usr:window.usr, msg: m.value, usrid:getCookie('userid')});
     m.value = ''
 });
 console.log = text => {
@@ -62,7 +61,7 @@ class Message {
         this.userid = msg.usrid
     }
     getMessageElement(){
-        var getMsg = document.createElement('li')
+        var getMsg = document.createElement('p')
         getMsg.innerHTML = `${this.usr}: ${this.message}`
         if(new Date().getTime() - this.date.getTime() < 604800000){
             if(this.date.getMinutes() < 10) var min =  '0' + this.date.getMinutes()
@@ -79,7 +78,7 @@ class Message {
         deleteButton.classList.add('deleteButton')
         deleteButton.addEventListener('click', e => {
             e.preventDefault()
-            socket.emit('delete', this.id)
+            socket.emit('deleteMessage', this.id)
         })
         if(this.userid == getCookie('userid')){
             getMsg.appendChild(deleteButton)
@@ -87,36 +86,49 @@ class Message {
         return getMsg
     }
 }
-socket.on('con',pack => {
-    if(document.getElementById((pack.id + ''))) return
-    var joined = document.createElement('h4')
-    joined.textContent = pack.name
-    joined.id = pack.id
-    document.getElementById('onlinePlayers').appendChild(joined)
-})
-socket.on('discon', id => {
-    document.getElementById(id + '').remove()
-})
-socket.on('chat message', function(msg){
+var addMessage = msg => {
     var msg = new Message(msg)
     messages.appendChild(msg.getMessageElement())
-    window.scrollTo(0, document.body.scrollHeight);
-});
-socket.on('chat messages', function(msgs){
+    messages.scrollTop = messages.scrollHeight
+}
+var addMessages = msgs => {
+    while(messages.firstChild) messages.removeChild(messages.firstChild)
     msgs.forEach((msg)=>{
         var msg = new Message(msg)
         messages.appendChild(msg.getMessageElement())
-        window.scrollTo(0, document.body.scrollHeight);
     })
-});
-socket.on('spam', () => {
-    var newMsg = document.createElement('li')
-    newMsg.textContent = `SERVER: Stop Spamming or die`
-    messages.appendChild(newMsg)
-    window.scrollTo(0, document.body.scrollHeight);
-});
-socket.on('delete', id => {
+    messages.scrollTop = messages.scrollHeight
+}
+var deleteMessage = id => {
     var toDel = document.getElementById(id)
     toDel.remove()
+}
+socket.on('servers', servers => {
+    socket = io('/' + servers[0].id.toString())
+    servers.forEach(server => {
+        var scontain = document.createElement('div')
+        scontain.id = server.id.toString()
+        scontain.classList.add('serverIconContainer')
+        
+        scontain.addEventListener('click', () => {
+            socket.removeListener('chatMessage', addMessage);
+            socket.removeListener('chatMessages', addMessages);
+            socket.removeListener('deleteMessage', deleteMessage);
+            socket = io('/' + server.id)
+            socket.on('chatMessage', addMessage);
+            socket.on('chatMessages', addMessages);
+            socket.on('deleteMessage', deleteMessage)
+        })
+        var sicon = document.createElement('span')
+        sicon.classList.add('serverIcon')
+        sicon.innerHTML = server.name
+        scontain.appendChild(sicon)
+        servs.appendChild(scontain)
+        
+    })
+    socket.on('chatMessage', addMessage);
+    socket.on('chatMessages', addMessages);
+    socket.on('deleteMessage', deleteMessage)
+
 })
 setInterval(() => {socket.emit('con', getCookie('userid'))}, 1/100000)

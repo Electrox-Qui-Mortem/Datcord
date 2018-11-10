@@ -1,0 +1,21 @@
+ socket.on('disconnect', () => {
+        pl.forEach(player => {
+            if(player.socketid == socket.id){
+                player.connected = false
+                player.socketid = null
+                io.emit('discon', player.id)
+            }
+        })
+    })
+    socket.on('con', id => {
+        pl.forEach(player => {
+            if(player.connected){
+                socket.emit('con', {id:player.id, name:player.nm})
+            }
+        })
+        if(pl.get(id)){ 
+            pl.get(id).connected = true
+            pl.get(id).socketid = socket.id
+            io.emit('con', {id:id, name:pl.get(id).nm})
+        }
+    })

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>Group Chat</title>
+        <link id="favicon" rel="icon" href="https://cdn.glitch.com/ad2a2be0-9feb-4eb9-8151-2f9d1202b0b7%2Ffavicon.ico?1540848159347" type="image/x-icon">
+        <script src="/socket.io/socket.io.js"></script>
+        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="/login.css">
+    </head>
+    <body>
+        <div class ="modal" id="login">
+            <form class="modal-content" id="loginForm">
+                <h1 class="title">Login</h1>
+                <p id='loginerr' class='loginerr'></p>
+                <label class="enter-label">
+                    <b>Username</b><br><input class="input" id="usernameLogin" placeholder="Enter Username" required/>
+                </label>
+                <label class="enter-label">
+                    <b>Password</b><br>
+                    <input 
+                        class="input maskContainer" 
+                        type="password" 
+                        id="passwordLogin" 
+                        required/>
+                    <button type='button' for="passwordLogin" class="mask"><img for="passwordLogin" src="https://i.stack.imgur.com/Oyk1g.png" class="maski"></button>
+                </label>
+                <button class='submit' id="submitLogin">
+                  Submit
+              </button>
+              <div class="container" style="background-color:#f1f1f1">
+                  <button class="switch" type="button" id="sign">Don't have an account? Sign Up!</button>
+              </div>
+            </form>      
+        </div>
+        <div class ="modal" id="signUp" style='display:none;'>
+            <form class="modal-content" id="signUpForm">
+                <h1 class="title">Sign Up</h1>
+                <p class='err' id='signuperr'></p>
+                <label class="enter-label">
+                    <b>Username</b><br><input class="input" id="usernameSignUp" name="usrnms" placeholder="Enter Username" required/>
+                </label>
+                <label class="enter-label">
+                     <b>Password</b><br>
+                  <input 
+                      class="input maskContainer" 
+                      id="passwordSignUp" 
+                      type="password"
+                      placeholder="Enter Password" 
+                      pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" 
+                      title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 characters"
+                      required/>
+                  <button type='button' for="passwordSignUp" class="mask"><img for="passwordSignUp" src="https://i.stack.imgur.com/Oyk1g.png" class="maski"></button>
+                </label>
+                <p class="invalid" id="numval">1 Number</p>
+                <p class="invalid" id="lowercaseval">1 Lowercase Letter</p>
+                <p class="invalid" id="uppercaseval">1 Uppercase Letter</p>
+                <label class="enter-label">
+                     <b>Email</b><br><input class="input" id="emailSignUp" name="email" placeholder="Enter Email" required/>
+                </label>
+                <p class="err" id="emailerr" style='display:none'>Invalid Email</p>
+                <button class="submit" id="submitSignUp" disabled>
+                  Submit
+              </button>
+              <div class="container" style="background-color:#f1f1f1">
+                  <button class="switch" type="button" id="log">Already have an account? Login in!</button>
+              </div>
+            </form>      
+        </div>
+        <div id="chat">
+            <div id="servers">
+            </div>
+            <div id="interface">
+                <div id="messages">
+                </div>
+                <form id="chatForm">
+                    <input id="messagebox" required/>
+                    <button class="submitButton">
+                      Send
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class ="modal" id="loading" style="display:none">
+            <div class="modal-content" id="loadingContent">
+                <h1 class="title">Loading</h1>
+            
+            </div>     
+        </div>
+        <script src="/client.js"></script>
+    </body>
+</html>

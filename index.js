@@ -11,6 +11,7 @@ var socketIO = require('socket.io');
 var io = socketIO(server);
 var fs = require('fs')
 var rp = require('request-promise')
+
 var Server = require('./server')
 var opt = {
     uri:'https://message-api.glitch.me/server',
@@ -43,9 +44,9 @@ fs.readdir( './', function( err, files ) {
 var mlabInteractor = require('./mongolab-data-api.js')
 var MLab = new mlabInteractor('Dj_EgiY8b-yLObrNAeln-AsCghwhVl_y')
 var mLab = require('mongolab-data-api')('Dj_EgiY8b-yLObrNAeln-AsCghwhVl_y');
-app.use(express.static('public'));
+app.use(express.static('client'));
 app.get('/', function(request, response) {
-  response.sendFile(__dirname + '/views/index.html');
+  response.sendFile(__dirname + '/client/index.html');
 });
 var getBlacklist = () => {
     var bl = []
@@ -71,24 +72,60 @@ var getPlayers = async () => {
 }
 getPlayers()
 io.on('connection', function(socket) {
-    var toSend = []
-    var opt = {
-        uri:'https://message-api.glitch.me/server',
-        method:'GET',
-        headers: {
-            'User-Agent': 'Request-Promise'
-        },
-        json:true
+    socket.on('token', token => {
+        var toSend = []
+        var opt = {
+            uri:'https://message-api.glitch.me/server',
+            method:'GET',
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json:true
 
-    }
-    rp(opt)
-        .then(res => {
-            res.forEach(s => toSend.push({name:s.name, id:s.id}))
-            socket.emit('servers', toSend)
-        })
-    socket.on('chat message', async (msg) => {
-        if(bl.find(element => element.id == msg.usrid)) return socket.emit('chat message', {usr:'SERVER', msg:'You\'re blacklisted.', date: new Date(), usrid:'000', id:3003030});
+        }
         
+        rp(opt)
+            .then(res => {
+                res.forEach(s => toSend.push({name:s.name, id:s.id}))
+                socket.emit('servers', toSend)
+            })
+    })
+    /*
+        */
+    socket.on('login', credentials => {
+        var opt = {
+            uri:'https://message-api.glitch.me/login',
+            method:'POST',
+            body:credentials,
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json:true
+        }
+        rp(opt)
+            .then(res => {
+                if(res == 'Incorrect Credentials') return socket.emit('loginFailed')
+                socket.emit('loginSuccess', res)
+            })
+    })
+    socket.on('signUp', credentials => {
+        var opt = {
+            uri:'https://message-api.glitch.me/signUp',
+            method:'POST',
+            body:credentials,
+            headers: {
+                'User-Agent': 'Request-Promise'
+            },
+            json:true
+        }
+        rp(opt)
+            .then(res => {
+                if(res.err) return socket.emit('signUpFailed', res)
+                else(socket.emit('signUpSuccess'))
+            })
+    })
+    socket.on('chat message', async (msg) => {
+        if(bl.find(element => element.id == msg.usrid)) return socket.emit('chat message', {usr:'SERVER', msg:'You\'re blacklisted.', date: new Date(), usrid:'000', id:3003030});  
     })
     socket.on('log', console.log)
     

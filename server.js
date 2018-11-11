@@ -48,7 +48,7 @@ module.exports = class Server {
                         })
                     })
                     socket.emit('chatMessages', list)
-                })
+                }, console.error)
             socket.on('chatMessage',msg => {
                 msg.id = Math.round(Math.random() * 1000000000)
                 msg.date = new Date().getTime()

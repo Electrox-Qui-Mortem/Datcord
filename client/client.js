@@ -185,7 +185,7 @@ document.getElementById('passwordSignUp').addEventListener('change', e => {
 document.getElementById('emailSignUp').addEventListener('keyup', e => {
     // Validate lowercase letters
     var sue = document.getElementById('emailSignUp')
-    var email = /^\w+@\w{2,253}\.\w{2,63}$/;
+    var email = /^\w.+@\w{2,253}\.\w{2,63}$/;
     if(sue.value.match(email)) {  
         document.getElementById('emailerr').style.display = 'none'
         document.getElementById('submitSignUp').disabled = false

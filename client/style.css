@@ -94,18 +94,18 @@ html, body {
 
 #messages p { 
     padding: 5px 10px; 
-    background: lightblue; 
-    color:white;
+    background: #F0EAD6; 
+    color:#77DD77;
 }
 #messages p:nth-child(odd) {
     background: white; 
     color:lightblue;
 }
-#messages p .deleteButton { 
+#messages p .deleteButton{
     background: white; 
     color:lightblue;
 }
-#messages p:nth-child(odd) .deleteButton{
-    background: lightblue; 
-    color:white;
+#messages p:nth-child(odd) .deleteButton { 
+    background: #F0EAD6; 
+    color:#77DD77;
 }
